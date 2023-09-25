@@ -1,0 +1,67 @@
+// este código é para vc precise movimentar as rodas de um carro no seu jogo e caso seja por exemplo um projeto de realidade aumentada e vc não tenha chão e o Rigibody não sirva para vc
+// este código está associada ao meu código chamado "movimentação" que movimenta meu carro para frente e para frente e para trás vc pode encontrar ele no meu repositório
+// vc pode novar que este código ele limita a rotação no eixo X da roda do meu carro, pois quando chegava ao angulo de 90 ou multiplos e eu tentasse rotacionar em outro angulo ele movia de forma desapropriada
+// sinta-se a vontade para opinar no meu linkedin e sugerir melhorias 
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+
+public class CarWheel : MonoBehaviour
+{
+    public Transform arObject;
+    public Movimentação movimentação;
+    public float maxRotationSpeed = 15f;
+    public float minRotationAngle = -70f;
+    public float maxRotationAngle = 70f;
+    public GameObject caminhao;
+
+
+    public void Update()
+    {
+        float originalCaminhaoScale = 1.0f; // Original scale of 'caminhao' when it was first placed
+        float currentCaminhaoScale = caminhao.transform.localScale.x; // Current scale of 'caminhao'
+
+        // Ensure currentCaminhaoScale is not less than originalCaminhaoScale
+        currentCaminhaoScale = Mathf.Max(currentCaminhaoScale, originalCaminhaoScale);
+
+        float scaleRatio = currentCaminhaoScale / originalCaminhaoScale; // Ratio of current scale to original scale
+
+        float modifiedRotationSpeed = maxRotationSpeed / scaleRatio; // Modify rotation speed based on scale ratio
+
+        float rotationSpeed = Mathf.Abs(movimentação.slider.value - 0.5f) *modifiedRotationSpeed;
+
+        if (movimentação.slider.value > 0.51f)
+        {
+            arObject.transform.Rotate(rotationSpeed, 0f, 0f, Space.Self);
+        }
+        else if (movimentação.slider.value < 0.49f)
+        {
+            arObject.transform.Rotate(-rotationSpeed, 0f, 0f, Space.Self);
+        }
+
+        // Check if the movimentação slider value is not equal to 0.5
+        if (Mathf.Abs(movimentação.slider.value - 0.5f) > 0.01f)
+        {
+            //float rotationSpeed = Mathf.Abs(movimentação.slider.value - 0.5f) * modifiedRotationSpeed;
+
+            if (movimentação.slider.value > 0.51f)
+            {
+                arObject.transform.Rotate(rotationSpeed, 0f, 0f, Space.Self);
+            }
+            else if (movimentação.slider.value < 0.49f)
+            {
+                arObject.transform.Rotate(-rotationSpeed, 0f, 0f, Space.Self);
+            }
+        }
+
+        float currentRotationX = arObject.transform.localEulerAngles.x;
+        if (currentRotationX > 180) currentRotationX -= 360;
+
+        if (currentRotationX < minRotationAngle || currentRotationX > maxRotationAngle)
+        {
+            arObject.transform.localEulerAngles = new Vector3(0f, arObject.transform.localEulerAngles.y, arObject.transform.localEulerAngles.z);
+        }
+    }
+}
